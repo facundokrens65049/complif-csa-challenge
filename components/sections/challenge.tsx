@@ -28,13 +28,13 @@ export function ChallengeSection({ locale }: { locale: Locale }) {
           {t.challenge.items.map((item, index) => {
             const Icon = icons[index] ?? Database;
             return (
-              <StaggerItem key={item.k}>
+              <StaggerItem key={item.k} className="min-w-0">
                 <a href={item.href} className="block h-full min-w-0">
                   <div className="lift-card h-full rounded-xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
-                    <div className="flex size-12 items-center justify-center rounded-full bg-accent text-primary print:hidden">
+                    <div className="flex size-12 items-center justify-center rounded-full bg-accent text-primary">
                       <Icon className="size-5" strokeWidth={1.75} />
                     </div>
-                    <p className="mt-4 font-mono text-xs text-primary print:mt-0">{item.k}</p>
+                    <p className="mt-4 font-mono text-xs text-primary">{item.k}</p>
                     <p className="mt-1 text-sm font-semibold">{item.t}</p>
                     <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                       {item.d}

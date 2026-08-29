@@ -222,7 +222,7 @@ export function MepChart({
     : null);
 
   return (
-    <div className="relative min-w-0 overflow-hidden rounded-2xl bg-[var(--chart-bg)] ring-1 ring-white/10 print:hidden">
+    <div className="relative min-w-0 overflow-hidden rounded-2xl bg-[var(--chart-bg)] ring-1 ring-white/10">
       <div className="flex flex-wrap items-start justify-between gap-3 px-4 pt-4 pb-2 sm:gap-4 sm:px-5 sm:pt-5 sm:pb-3">
         <div className="min-w-0">
           <p className="text-[11px] tracking-[0.16em] text-white/45 uppercase">

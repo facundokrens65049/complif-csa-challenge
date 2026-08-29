@@ -17,12 +17,12 @@ export function SourceLink({
       target="_blank"
       rel="noreferrer"
       className={cn(
-        "inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline print-cite",
+        "inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline",
         className,
       )}
     >
       {children}
-      <ArrowUpRight className="size-3.5 print:hidden" strokeWidth={1.75} />
+      <ArrowUpRight className="size-3.5" strokeWidth={1.75} />
     </a>
   );
 }

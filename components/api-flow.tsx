@@ -24,19 +24,19 @@ export function ApiFlow({
   const finish = lanes.find((lane) => lane.node.kind === "ok");
 
   return (
-    <div className="min-w-0 max-w-full">
+    <div className="api-flow">
       <div className="mb-4 flex flex-wrap gap-x-4 gap-y-1 text-[11px] tracking-wider uppercase">
         <span className="inline-flex items-center gap-1.5 text-primary">
-          <span className="size-1.5 rounded-full bg-primary" />
+          <span className="size-1.5 shrink-0 rounded-full bg-primary" />
           {legendOk}
         </span>
         <span className="inline-flex items-center gap-1.5 text-destructive">
-          <span className="size-1.5 rounded-full bg-destructive" />
+          <span className="size-1.5 shrink-0 rounded-full bg-destructive" />
           {legendError}
         </span>
       </div>
 
-      <ol className="relative min-w-0 max-w-full list-none border-l-2 border-primary/25 pl-5 sm:pl-6">
+      <ol className="api-flow-list">
         {steps.map((lane, index) => {
           const continueLabel = lane.continue
             ? copy.edges[lane.continue.edge.id]
@@ -56,7 +56,7 @@ export function ApiFlow({
           );
         })}
         {finish ? (
-          <li className="relative min-w-0">
+          <li className="api-flow-step">
             <FlowDot kind="ok" />
             <FlowNode node={finish.node} copy={copy} />
           </li>
@@ -78,32 +78,21 @@ function FlowSegment({
   showArrow: boolean;
 }) {
   return (
-    <li className="relative min-w-0 pb-2">
+    <li className="api-flow-step">
       <FlowDot kind={lane.node.kind} />
-      <div className="flex min-w-0 max-w-full flex-col gap-3 md:flex-row md:items-stretch">
-        <FlowNode
-          node={lane.node}
-          copy={copy}
-          className="w-full min-w-0 md:flex-1"
-        />
+      <div className={cn("api-flow-row", lane.fail && "api-flow-row-split")}>
+        <FlowNode node={lane.node} copy={copy} className="api-flow-main" />
         {lane.fail ? (
-          <div className="flex min-w-0 w-full flex-col md:w-64 md:shrink-0 md:flex-row md:items-stretch">
+          <div className="api-flow-fail">
             <FlowConnector
               label={copy.edges[lane.fail.edge.id]}
               variant="error"
-              axis="y"
-              className="md:hidden"
-            />
-            <FlowConnector
-              label={copy.edges[lane.fail.edge.id]}
-              variant="error"
-              axis="x"
-              className="hidden md:flex"
+              layout="fail"
             />
             <FlowNode
               node={lane.fail.to}
               copy={copy}
-              className="min-w-0 flex-1"
+              className="api-flow-fail-node"
             />
           </div>
         ) : null}
@@ -112,8 +101,7 @@ function FlowSegment({
         <FlowConnector
           label={continueLabel}
           variant="ok"
-          axis="y"
-          className="items-start pl-1"
+          layout="continue"
         />
       ) : null}
     </li>
@@ -149,7 +137,7 @@ function FlowNode({
   return (
     <div
       className={cn(
-        "min-w-0 max-w-full rounded-2xl p-3 ring-1 sm:p-4",
+        "api-flow-node rounded-2xl p-3 ring-1 sm:p-4",
         kind === "request" && "bg-background ring-foreground/10",
         kind === "decision" && "bg-accent/70 ring-primary/25",
         kind === "ok" && "bg-primary/10 ring-primary/25",
@@ -176,7 +164,7 @@ function FlowNode({
           </span>
         ) : null}
         {node.path ? (
-          <span className="font-mono text-[11px] break-all text-muted-foreground">
+          <span className="font-mono text-[11px] text-muted-foreground">
             {node.path}
           </span>
         ) : null}
@@ -199,33 +187,26 @@ function FlowNode({
 function FlowConnector({
   label,
   variant,
-  axis,
-  className,
+  layout,
 }: {
   label: string;
   variant: "ok" | "error";
-  axis: "x" | "y";
-  className?: string;
+  layout: "continue" | "fail";
 }) {
   const tone = variant === "ok" ? "text-primary" : "text-destructive";
   const line = variant === "ok" ? "bg-primary/40" : "bg-destructive/40";
-  const Arrow = axis === "x" ? ArrowRight : ArrowDown;
+  const Arrow = layout === "fail" ? ArrowRight : ArrowDown;
 
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center gap-1",
-        axis === "y" && "flex-col py-2",
-        axis === "x" && "px-1",
-        className,
+        "api-flow-link",
+        layout === "fail" ? "api-flow-fail-link" : "api-flow-continue",
       )}
     >
-      {axis === "y" ? <span className={cn("h-4 w-px", line)} /> : null}
-      {axis === "x" ? (
-        <span className={cn("h-px w-3 shrink-0", line)} />
-      ) : null}
+      <span className={cn("api-flow-line", line)} />
       <span className={cn("font-mono text-[11px]", tone)}>{label}</span>
-      <Arrow className={cn("size-3.5 shrink-0", tone)} strokeWidth={1.75} />
+      <Arrow className={cn("api-flow-arrow size-3.5 shrink-0", tone)} strokeWidth={1.75} />
     </div>
   );
 }

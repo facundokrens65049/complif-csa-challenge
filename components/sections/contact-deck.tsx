@@ -71,7 +71,7 @@ export function ContactDeck({
         aria-label={t.contact.deck}
       >
         {Array.from({ length: BACK_COUNT }, (_, index) => (
-          <div key={index} className="biz-card print:hidden" aria-hidden="true">
+          <div key={index} className="biz-card" aria-hidden="true">
             <div className="biz-card-back">
               <div className="biz-card-back-frame" />
             </div>
@@ -96,7 +96,7 @@ export function ContactDeck({
                       aria-label={t.contact.cta}
                       className={cn(rowClass, "min-w-0")}
                     >
-                      <Mail className="size-4 shrink-0 text-primary print:hidden" />
+                      <Mail className="size-4 shrink-0 text-primary" />
                       <span className="min-w-0 truncate">{email}</span>
                     </a>
                   </li>
@@ -108,7 +108,7 @@ export function ContactDeck({
                       aria-label={t.contact.phone}
                       className={rowClass}
                     >
-                      <Phone className="size-4 shrink-0 text-primary print:hidden" />
+                      <Phone className="size-4 shrink-0 text-primary" />
                       <span>{phone}</span>
                     </a>
                   </li>
@@ -120,9 +120,9 @@ export function ContactDeck({
                       target="_blank"
                       rel="noreferrer"
                       aria-label={t.contact.linkedin}
-                      className={cn(rowClass, "print-cite")}
+                      className={rowClass}
                     >
-                      <LinkedinIcon className="size-4 shrink-0 text-primary print:hidden" />
+                      <LinkedinIcon className="size-4 shrink-0 text-primary" />
                       <span>{t.contact.linkedin}</span>
                     </a>
                   </li>

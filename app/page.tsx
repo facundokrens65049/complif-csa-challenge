@@ -9,7 +9,6 @@ import { TechSection } from "@/components/sections/tech-section";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
 import { loadContact } from "@/lib/contact";
-import { copy } from "@/lib/i18n";
 import { getLocale } from "@/lib/locale";
 import { getMepSeries } from "@/lib/mep";
 
@@ -17,7 +16,6 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const locale = await getLocale();
-  const t = copy(locale);
   const contact = loadContact();
   const { points, error } = await getMepSeries();
 
@@ -25,9 +23,6 @@ export default async function Home() {
     <>
       <SiteNav locale={locale} />
       <main className="app-shell flex-1">
-        <p className="page-gutter mx-auto hidden max-w-6xl pt-2 pb-4 font-heading text-lg font-bold print:block">
-          {t.meta.title}
-        </p>
         <HeroSection locale={locale} />
         <ChallengeSection locale={locale} />
         <div

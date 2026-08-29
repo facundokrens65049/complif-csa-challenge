@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Cog, Mail, Maximize2, Minus, Plus, User } from "lucide-react";
+import {
+  localizeOnboardingBpmn,
+  type BpmnLabelCopy,
+} from "@/lib/bpmn-labels";
 import { cn } from "@/lib/utils";
 
 const BPMN_HREF = "/cliente-adquisition.bpmn";
@@ -44,6 +48,7 @@ export function BpmnViewer({
   fitLabel,
   errorLabel,
   legend,
+  diagramCopy,
 }: {
   hint: string;
   zoomInLabel: string;
@@ -58,6 +63,7 @@ export function BpmnViewer({
     gateway: string;
     end: string;
   };
+  diagramCopy: BpmnLabelCopy;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<Canvas | null>(null);
@@ -73,24 +79,24 @@ export function BpmnViewer({
     let resize: ResizeObserver | undefined;
     let settle: number | undefined;
 
-    async function mount() {
+    async function mount(container: HTMLElement) {
       try {
-        const size = await waitForHostSize(host, () => cancelled);
-        if (cancelled || !host || !size) return;
+        const size = await waitForHostSize(container, () => cancelled);
+        if (cancelled || !size) return;
 
         const [xmlRes, Viewer] = await Promise.all([
           fetch(BPMN_HREF),
           loadViewerCtor(),
         ]);
-        if (cancelled || !host) return;
+        if (cancelled) return;
         if (!xmlRes.ok) throw new Error("bpmn fetch failed");
-        const xml = await xmlRes.text();
+        const xml = localizeOnboardingBpmn(await xmlRes.text(), diagramCopy);
         if (cancelled) return;
 
-        const ready = measureHost(host) ?? size;
+        const ready = measureHost(container) ?? size;
 
         instance = new Viewer({
-          container: host,
+          container,
           width: ready.width,
           height: ready.height,
         });
@@ -107,29 +113,21 @@ export function BpmnViewer({
         canvasRef.current = canvas;
         await nextFrame();
         if (cancelled) return;
-        pinSvgSize(host);
-        applyOpeningView(host);
+        syncCanvas(container, canvas, "open");
         await nextFrame();
         if (cancelled) return;
-        pinSvgSize(host);
-        applyOpeningView(host);
+        syncCanvas(container, canvas, "open");
         settle = window.setTimeout(() => {
           if (cancelled) return;
-          pinSvgSize(host);
-          applyOpeningView(host);
+          syncCanvas(container, canvas, "open");
         }, 80);
 
         resize = new ResizeObserver(() => {
           if (cancelled) return;
-          pinSvgSize(host);
-          try {
-            canvas.resized();
-          } catch {
-            // Ignore layout glitches while the SVG is settling.
-          }
+          syncCanvas(container, canvas, "keep");
         });
-        resize.observe(host);
-        if (host.parentElement) resize.observe(host.parentElement);
+        resize.observe(container);
+        if (container.parentElement) resize.observe(container.parentElement);
       } catch (err) {
         if (cancelled) return;
         console.error(err);
@@ -143,7 +141,7 @@ export function BpmnViewer({
       }
     }
 
-    void mount();
+    void mount(host);
 
     return () => {
       cancelled = true;
@@ -159,7 +157,7 @@ export function BpmnViewer({
         }
       }
     };
-  }, []);
+  }, [diagramCopy.pool, diagramCopy.yes]);
 
   function zoomBy(delta: number) {
     const host = hostRef.current;
@@ -186,8 +184,8 @@ export function BpmnViewer({
   }
 
   return (
-    <div className="min-w-0 max-w-full">
-      <div className="mb-3 flex flex-wrap gap-x-4 gap-y-2 text-[11px] tracking-wider text-muted-foreground uppercase">
+    <div className="min-w-0 max-w-full overflow-hidden">
+      <div className="bpmn-legend mb-3 flex flex-wrap gap-x-4 gap-y-2 text-[11px] tracking-wider text-muted-foreground uppercase">
         <span className="inline-flex items-center gap-1.5">
           <span className="size-2.5 rounded-full border-2 border-primary" />
           {legend.start}
@@ -206,8 +204,7 @@ export function BpmnViewer({
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span
-            className="size-2 bg-primary/80"
-            style={{ transform: "rotate(45deg)" }}
+            className="size-2 bg-primary/80 [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]"
           />
           {legend.gateway}
         </span>
@@ -218,7 +215,7 @@ export function BpmnViewer({
       </div>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <p className="min-w-0 text-sm text-muted-foreground">{hint}</p>
-        <div className="print-chrome flex shrink-0 items-center gap-1">
+        <div className="flex shrink-0 items-center gap-1">
           <ZoomButton label={zoomOutLabel} onClick={() => zoomBy(-0.15)}>
             <Minus className="size-4" strokeWidth={1.75} />
           </ZoomButton>
@@ -228,6 +225,12 @@ export function BpmnViewer({
               const host = hostRef.current;
               if (!host) return;
               pinSvgSize(host);
+              applyOpeningView(host);
+              try {
+                canvasRef.current?.resized();
+              } catch {
+                // Safari SVGMatrix
+              }
               applyOpeningView(host);
             }}
           >
@@ -271,11 +274,8 @@ function measureHost(host: HTMLElement): { width: number; height: number } | nul
   const height = Math.round(
     frameRect?.height || hostRect.height || host.clientHeight || 0,
   );
-  if (width < 160 || height < 160) return null;
-  return {
-    width: Math.max(320, width),
-    height: Math.max(220, height),
-  };
+  if (width < 80 || height < 80) return null;
+  return { width, height };
 }
 
 async function waitForHostSize(
@@ -296,6 +296,25 @@ async function waitForHostSize(
   );
 }
 
+function syncCanvas(
+  host: HTMLElement,
+  canvas: Canvas,
+  mode: "open" | "keep",
+) {
+  const previous = mode === "keep" ? readViewport(host) : null;
+  pinSvgSize(host);
+  try {
+    canvas.resized();
+  } catch {
+    // Safari can reject a non-finite SVGMatrix.
+  }
+  if (previous) {
+    setViewportTransform(host, previous.x, previous.y, previous.scale);
+    return;
+  }
+  applyOpeningView(host);
+}
+
 function applyOpeningView(host: HTMLElement) {
   const size = measureHost(host);
   if (!size) return;
@@ -314,10 +333,8 @@ function setViewportTransform(
   if (!viewport) return;
   const tx = -x * scale;
   const ty = -y * scale;
-  viewport.setAttribute(
-    "transform",
-    `matrix(${scale},0,0,${scale},${tx},${ty})`,
-  );
+  const matrix = `matrix(${scale},0,0,${scale},${tx},${ty})`;
+  viewport.setAttribute("transform", matrix);
 }
 
 function readViewport(
@@ -340,12 +357,23 @@ function readViewport(
 function pinSvgSize(host: HTMLElement) {
   const size = measureHost(host);
   if (!size) return;
+  host.style.width = `${size.width}px`;
+  host.style.height = `${size.height}px`;
+  host.querySelectorAll<HTMLElement>(".djs-container, .djs-parent").forEach((el) => {
+    el.style.width = `${size.width}px`;
+    el.style.height = `${size.height}px`;
+    el.style.maxWidth = `${size.width}px`;
+    el.style.maxHeight = `${size.height}px`;
+  });
   const svg = host.querySelector("svg");
   if (!svg) return;
   svg.setAttribute("width", String(size.width));
   svg.setAttribute("height", String(size.height));
+  svg.setAttribute("preserveAspectRatio", "none");
   svg.style.width = `${size.width}px`;
   svg.style.height = `${size.height}px`;
+  svg.style.maxWidth = `${size.width}px`;
+  svg.style.maxHeight = `${size.height}px`;
 }
 
 function nextFrame(): Promise<void> {

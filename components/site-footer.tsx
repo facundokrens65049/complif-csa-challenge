@@ -38,7 +38,7 @@ export function SiteFooter({ locale }: { locale: Locale }) {
               {sources.map((source) => (
                 <a
                   key={source.href}
-                  className="print-cite underline underline-offset-4 hover:text-foreground"
+                  className="underline underline-offset-4 hover:text-foreground"
                   href={source.href}
                   target="_blank"
                   rel="noreferrer"
@@ -53,7 +53,7 @@ export function SiteFooter({ locale }: { locale: Locale }) {
               href="https://www.complif.com"
               target="_blank"
               rel="noreferrer"
-              className="shrink-0 py-1 opacity-90 transition-opacity hover:opacity-100 print:hidden"
+              className="shrink-0 py-1 opacity-90 transition-opacity hover:opacity-100"
             >
               <img
                 src="/complif-logo.svg"

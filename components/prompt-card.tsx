@@ -34,7 +34,7 @@ export function PromptCard({
       <p className="text-sm leading-relaxed text-muted-foreground">
         {item.q}
       </p>
-      <div className="flex h-full min-h-[7rem] flex-1 flex-col lg:min-h-0 print:min-h-0">
+      <div className="flex h-full min-h-[7rem] flex-1 flex-col lg:min-h-0">
         {hasFlow ? (
           <FlowSteps
             steps={item.steps ?? []}

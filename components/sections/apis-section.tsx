@@ -25,8 +25,8 @@ export function ApisSection({ locale }: { locale: Locale }) {
 
       <Stagger className="flex flex-col gap-4">
         {flows.map(({ item, flow, labels }) => (
-          <StaggerItem key={item.k} className="min-w-0">
-            <article className="min-w-0 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5 print:break-inside-auto">
+          <StaggerItem key={item.k} className="min-w-0 max-w-full">
+            <article className="min-w-0 max-w-full overflow-x-hidden rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
               <p className="font-mono text-xs text-primary">{item.k}</p>
               <h3 className="mt-1 text-sm font-semibold sm:text-base">
                 {item.t}
@@ -34,7 +34,7 @@ export function ApisSection({ locale }: { locale: Locale }) {
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {item.q}
               </p>
-              <div className="mt-5 min-w-0">
+              <div className="mt-5 min-w-0 max-w-full overflow-x-hidden">
                 <ApiFlow
                   flow={flow}
                   copy={labels}

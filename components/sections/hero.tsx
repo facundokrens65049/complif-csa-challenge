@@ -7,9 +7,9 @@ export function HeroSection({ locale }: { locale: Locale }) {
   return (
     <section
       id="home"
-      className="hero-min-h relative flex items-center justify-center overflow-hidden py-16 sm:py-20 md:min-h-[580px] md:py-28 print:min-h-0 print:py-8"
+      className="hero-min-h relative flex items-center justify-center overflow-hidden py-16 sm:py-20 md:min-h-[580px] md:py-28"
     >
-      <div className="hero-blobs pointer-events-none absolute inset-0 print:hidden" aria-hidden>
+      <div className="hero-blobs pointer-events-none absolute inset-0" aria-hidden>
         <span className="hero-blob hero-blob-a" />
         <span className="hero-blob hero-blob-b" />
         <span className="hero-blob hero-blob-c" />

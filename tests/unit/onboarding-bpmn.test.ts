@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  BPMN_LANE_BY_ID,
+  BPMN_NODE_BY_ID,
+  BPMN_NOTE_BY_ID,
+  localizeOnboardingBpmn,
+} from "@/lib/bpmn-labels";
+import { copy } from "@/lib/i18n";
+import {
   onboardingBpmnAnnotations,
   onboardingBpmnEventNames,
   onboardingBpmnGatewayNames,
@@ -7,6 +14,7 @@ import {
   onboardingBpmnTaskNames,
   readOnboardingBpmn,
 } from "@/lib/onboarding-bpmn";
+import { onboardingFlow } from "@/lib/onboarding-flow";
 
 describe("readOnboardingBpmn", () => {
   it("loads the Camunda model with BPMN component types", async () => {
@@ -133,5 +141,85 @@ describe("onboardingBpmnAnnotations", () => {
       "Asumo que los términos y condiciones no son negociables",
     ]);
     expect(tasks.some((name) => /asumo/i.test(name))).toBe(false);
+  });
+});
+
+describe("localizeOnboardingBpmn", () => {
+  it("maps every Camunda id to the onboarding copy", () => {
+    // Arrange
+    const flowNodeIds = onboardingFlow.nodes
+      .filter((node) => node.kind !== "note")
+      .map((node) => node.id)
+      .sort();
+    const flowLaneIds = [
+      "advisor",
+      "consumer",
+      "legal",
+      "institutional",
+      "pyme",
+      "data-entry",
+    ];
+    const flowNoteIds = onboardingFlow.notes.map((note) => note.id).sort();
+
+    // Act
+    const mappedNodes = Object.values(BPMN_NODE_BY_ID).sort();
+    const mappedLanes = Object.values(BPMN_LANE_BY_ID);
+    const mappedNotes = Object.values(BPMN_NOTE_BY_ID).sort();
+
+    // Assert
+    expect(mappedNodes).toEqual(flowNodeIds);
+    expect(mappedLanes).toEqual(flowLaneIds);
+    expect(mappedNotes).toEqual(flowNoteIds);
+  });
+
+  it("rewrites visible labels into English and keeps Spanish when asked", async () => {
+    // Arrange
+    const xml = await readOnboardingBpmn();
+    const en = copy("en").processesII;
+    const es = copy("es").processesII;
+
+    // Act
+    const english = localizeOnboardingBpmn(xml, {
+      pool: en.pool,
+      yes: en.legend.yes,
+      no: en.legend.no,
+      lanes: en.lanes,
+      nodes: en.nodes,
+      notes: en.notes,
+    });
+    const spanish = localizeOnboardingBpmn(xml, {
+      pool: es.pool,
+      yes: es.legend.yes,
+      no: es.legend.no,
+      lanes: es.lanes,
+      nodes: es.nodes,
+      notes: es.notes,
+    });
+
+    // Assert
+    expect(onboardingBpmnTaskNames(english)).toContain("Thank and close the case");
+    expect(onboardingBpmnTaskNames(english)).not.toContain(
+      "Agradecer y cerrar el caso",
+    );
+    expect(onboardingBpmnGatewayNames(english)).toContain(
+      "Is there commercial intent?",
+    );
+    expect(onboardingBpmnEventNames(english)).toEqual([
+      "Commercial outreach started",
+      "Case closed",
+      "Account opened",
+    ]);
+    expect(english).toContain('name="Commercial advisor"');
+    expect(english).toContain('name="Yes"');
+    expect(english).not.toContain('name="Sí"');
+    expect(onboardingBpmnAnnotations(english)).toEqual([
+      en.notes.termsNote,
+    ]);
+    expect(onboardingBpmnTaskNames(english).every((name) => name.length <= 38)).toBe(
+      true,
+    );
+    expect(onboardingBpmnTaskNames(spanish)).toContain("Agradecer y cerrar el caso");
+    expect(spanish).toContain('name="Sí"');
+    expect(spanish).toContain('name="Asesor comercial"');
   });
 });

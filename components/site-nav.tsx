@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Printer } from "lucide-react";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import {
   NAV_SECTION_IDS,
@@ -105,7 +104,7 @@ export function SiteNav({ locale }: { locale: Locale }) {
     <header
       ref={headerRef}
       className={cn(
-        "site-nav print-chrome fixed top-0 right-0 left-0 z-50 h-[var(--navbar-h)] border-b transition-colors",
+        "site-nav fixed top-0 right-0 left-0 z-50 h-[var(--navbar-h)] border-b transition-colors",
         scrolled
           ? "border-border bg-background/95 backdrop-blur-md"
           : "border-transparent bg-background/80 backdrop-blur-sm",
@@ -122,15 +121,6 @@ export function SiteNav({ locale }: { locale: Locale }) {
         </a>
         <div className="order-2 flex shrink-0 items-center gap-1 lg:order-3">
           <LanguageSwitcher locale={locale} label={t.nav.language} />
-          <button
-            type="button"
-            aria-label={t.nav.print}
-            title={t.nav.print}
-            onClick={() => window.print()}
-            className="inline-flex size-11 appearance-none items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <Printer className="size-5" strokeWidth={1.75} />
-          </button>
         </div>
         <nav className="order-3 flex w-full flex-wrap items-center gap-0.5 lg:order-2 lg:w-auto lg:flex-1 lg:justify-end lg:gap-1">
           {links.map((link) => {

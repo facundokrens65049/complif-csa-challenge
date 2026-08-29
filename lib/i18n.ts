@@ -26,7 +26,6 @@ export const messages = defineMessages({
       processes: "Procesos",
       contact: "Contacto",
       language: "Idioma",
-      print: "Imprimir",
     },
     hero: {
       kicker: "Customer Success Analyst · Complif",
@@ -574,7 +573,6 @@ export const messages = defineMessages({
       processes: "Processes",
       contact: "Contact",
       language: "Language",
-      print: "Print",
     },
     hero: {
       kicker: "Customer Success Analyst · Complif",

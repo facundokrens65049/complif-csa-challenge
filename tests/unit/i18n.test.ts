@@ -41,7 +41,8 @@ describe("copy", () => {
     expect(t.contact.cta).toBeTruthy();
     expect(t.contact.role).toBeTruthy();
     expect(t.contact.deck).toBeTruthy();
-    expect(t.nav.print).toBe("Imprimir");
+    expect(t.nav.language).toBe("Idioma");
+    expect(t.nav).not.toHaveProperty("print");
     expect(t.sql.blocks).toHaveLength(3);
     expect(t.sql.intro).toMatch(/no materializo/i);
     expect(t.sql.queryLabel).toBe("Consulta");
@@ -83,7 +84,8 @@ describe("copy", () => {
     expect(t.contact.cta).toBeTruthy();
     expect(t.contact.role).toBeTruthy();
     expect(t.contact.deck).toBeTruthy();
-    expect(t.nav.print).toBe("Print");
+    expect(t.nav.language).toBe("Language");
+    expect(t.nav).not.toHaveProperty("print");
     expect(t.sql.blocks).toHaveLength(3);
     expect(t.sql.intro).toMatch(/do not materialize/i);
     expect(t.sql.queryLabel).toBe("Query");
