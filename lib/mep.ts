@@ -30,7 +30,8 @@ export function mepSeriesSelectSql() {
   ].join("\n");
 }
 
-export function toMepErrorCode(_clientMessage: string): MepErrorCode {
+export function toMepErrorCode(clientMessage: string): MepErrorCode {
+  void clientMessage;
   return "unavailable";
 }
 

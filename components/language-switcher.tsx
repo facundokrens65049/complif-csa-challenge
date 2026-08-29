@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { LOCALES, LOCALE_COOKIE, type Locale } from "@/lib/i18n";
@@ -12,12 +13,18 @@ export function LanguageSwitcher({
   label: string;
 }) {
   const router = useRouter();
+  const [requested, setRequested] = useState<Locale | null>(null);
+
+  useEffect(() => {
+    if (!requested || requested === locale) return;
+    document.cookie = `${LOCALE_COOKIE}=${requested};path=/;max-age=31536000;samesite=lax`;
+    document.documentElement.lang = requested;
+    router.refresh();
+  }, [requested, locale, router]);
 
   function select(next: Locale) {
     if (next === locale) return;
-    document.cookie = `${LOCALE_COOKIE}=${next};path=/;max-age=31536000;samesite=lax`;
-    document.documentElement.lang = next;
-    router.refresh();
+    setRequested(next);
   }
 
   return (

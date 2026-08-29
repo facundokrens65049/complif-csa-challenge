@@ -64,16 +64,16 @@ export function SiteNav({ locale }: { locale: Locale }) {
       setActiveId(id);
     }
 
-    if (window.location.hash) applyHash(window.location.hash);
-
     const onHashChange = () => applyHash(window.location.hash);
     const onScrollEnd = () => {
       locked.current = false;
       syncFromScroll();
     };
 
-    syncFromScroll();
-    const frame = window.requestAnimationFrame(syncFromScroll);
+    const frame = window.requestAnimationFrame(() => {
+      if (window.location.hash) applyHash(window.location.hash);
+      syncFromScroll();
+    });
 
     window.addEventListener("scroll", syncFromScroll, { passive: true });
     window.addEventListener("resize", syncFromScroll);
